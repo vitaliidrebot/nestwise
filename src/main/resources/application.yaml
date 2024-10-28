@@ -9,6 +9,14 @@ spring:
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/nestwise}
+    user: ${SPRING_DATASOURCE_USERNAME:nestwise_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:nestwise_password}
+    validate-on-migrate: true
   sql:
     init:
       platform: postgres
