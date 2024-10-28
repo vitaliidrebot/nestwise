@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: nestwise
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/nestwise}
+    driverClassName: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:nestwise_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:nestwise_password}
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      platform: postgres

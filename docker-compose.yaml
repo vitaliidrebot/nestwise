@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: nestwise_user
+      POSTGRES_PASSWORD: nestwise_password
+      POSTGRES_DB: nestwise
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nestwise:
+    build:
+      dockerfile: docker/Dockerfile
+    container_name: nestwise_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/nestwise
+      SPRING_DATASOURCE_USERNAME: nestwise_user
+      SPRING_DATASOURCE_PASSWORD: nestwise_password
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
