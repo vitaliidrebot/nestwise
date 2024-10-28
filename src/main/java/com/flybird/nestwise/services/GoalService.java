@@ -9,4 +9,8 @@ public interface GoalService {
     GoalResponseDto createGoal(GoalRequestDto requestDto, String username);
 
     List<GoalResponseDto> getUserGoals(String username);
+
+    GoalResponseDto updateGoal(Long id, GoalRequestDto requestDto, String username);
+
+    void deleteGoal(Long id, String username);
 }

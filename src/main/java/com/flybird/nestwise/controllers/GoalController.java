@@ -38,4 +38,23 @@ public interface GoalController {
             @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found")
     })
     ResponseEntity<List<GoalResponseDto>> getUserGoals(@Parameter(hidden = true) User user);
+
+    @Operation(summary = "Update a goal", tags = "Goal", description = "Update a goal by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to update the resource"),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(responseCode = "404", description = "The resource you were trying to update is not found")
+    })
+    ResponseEntity<GoalResponseDto> updateGoal(User user, Long id, @Valid GoalRequestDto requestDto);
+
+    @Operation(summary = "Delete user goal", tags = "Goal", description = "Delete user goal by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to delete the resource"),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(responseCode = "404", description = "The resource you were trying to delete is not found")
+    })
+    ResponseEntity<Void> deleteGoal(User user, Long id);
 }

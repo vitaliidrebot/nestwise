@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoalRequestDto implements Serializable {
+public class GoalRequestDto {
     @Schema(description = "Optional parent goal id", example = "1")
     private Long parentId;
 

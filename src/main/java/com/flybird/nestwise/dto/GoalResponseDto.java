@@ -19,7 +19,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoalResponseDto implements Serializable {
+public class GoalResponseDto {
     @Schema(description = "Unique identifier of the goal", example = "1")
     private Integer id;
 

@@ -36,4 +36,34 @@ public class GoalServiceImpl implements GoalService {
 
         return goals.stream().map(mappingUtil::toDto).toList();
     }
+
+    @Override
+    public GoalResponseDto updateGoal(Long id, GoalRequestDto requestDto, String username) {
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(RuntimeException::new);
+        var goal = goalRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+        if (!goal.getCreatedBy().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        var goalToUpdate = mappingUtil.toDomain(requestDto, user.getId(),
+                goalRepository::getReferenceById, userRepository::getReferenceById);
+        goalToUpdate.setId(id);
+
+        var updatedGoal = goalRepository.save(goalToUpdate);
+
+        return mappingUtil.toDto(updatedGoal);
+    }
+
+    @Override
+    public void deleteGoal(Long id, String username) {
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(RuntimeException::new);
+        var goal = goalRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+        if (!goal.getCreatedBy().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+        goalRepository.delete(goal);
+    }
 }
