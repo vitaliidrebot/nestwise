@@ -21,6 +21,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_db:5432/nestwise
       SPRING_DATASOURCE_USERNAME: nestwise_user
       SPRING_DATASOURCE_PASSWORD: nestwise_password
+      MONOBANK_API_TOKEN: ${MONOBANK_API_TOKEN}
     depends_on:
       - postgres
     ports:
