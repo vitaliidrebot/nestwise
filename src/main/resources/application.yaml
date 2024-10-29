@@ -24,3 +24,8 @@ spring:
     user:
       name: vitalii
       password: password
+nestwise:
+  bank:
+    monobank:
+      url: https://api.monobank.ua
+      token: ${MONOBANK_API_TOKEN}
