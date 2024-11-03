@@ -7,7 +7,7 @@ import lombok.extern.jackson.Jacksonized;
 @Data
 @Builder
 @Jacksonized
-public class AccountStatementResponse {
+public class MonobankTransactionResponse {
     /** Unique transaction ID */
     private String id;
     
