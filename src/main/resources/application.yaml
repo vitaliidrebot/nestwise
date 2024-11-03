@@ -29,3 +29,8 @@ nestwise:
     monobank:
       url: https://api.monobank.ua
       token: ${MONOBANK_API_TOKEN}
+    kredobank:
+      url: https://online.kredobank.com.ua/ibank/api
+      username: ${KREDOBANK_USERNAME}
+      password: ${KREDOBANK_PASSWORD}
+      token: ${KREDOBANK_API_TOKEN}
