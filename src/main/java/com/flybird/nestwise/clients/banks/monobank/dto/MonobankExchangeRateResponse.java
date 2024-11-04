@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class ExchangeRateResponse {
+public class MonobankExchangeRateResponse {
     private Integer currencyCodeA;
     private Integer currencyCodeB;
     private Long date;
