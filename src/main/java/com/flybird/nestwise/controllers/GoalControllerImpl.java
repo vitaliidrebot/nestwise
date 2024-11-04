@@ -23,7 +23,6 @@ import java.util.List;
 @RequestMapping("/goals")
 @RequiredArgsConstructor
 public class GoalControllerImpl implements GoalController {
-
     private final GoalService goalService;
 
     @Override

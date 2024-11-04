@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public interface GoalController {
     })
     ResponseEntity<GoalResponseDto> createGoal(
             @Parameter(hidden = true) User user,
-            @Valid @RequestBody GoalRequestDto requestDto
+            @Valid GoalRequestDto requestDto
     );
 
     @Operation(summary = "Get all user goals", tags = "Goal", description = "Retrieve a list of all goals for user")

@@ -2,8 +2,8 @@ package com.flybird.nestwise.clients.banks.kredobank;
 
 import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.CompleteOtpChallengeRequest;
-import com.flybird.nestwise.clients.banks.kredobank.dto.ExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.InitiateOtpChallengeResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginRequest;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponse;
@@ -45,7 +45,7 @@ public class KredobankClientImpl implements KredobankClient {
     private final MappingUtil mappingUtil;
 
     @Override
-    public List<ExchangeRateResponse> getExchangeRates(Set<String> currencies) {
+    public List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies) {
         var url = UriComponentsBuilder.fromUriString(kredobankSettings.getUrl())
                 .path(KREDOBANK_CURRENCY_PATH)
                 .queryParam("date", DATE_FORMATTER.format(Instant.now()))
@@ -56,7 +56,7 @@ public class KredobankClientImpl implements KredobankClient {
         return restClient.get()
                 .uri(url)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<ExchangeRateResponse>>() {})
+                .toEntity(new ParameterizedTypeReference<List<KredobankExchangeRateResponse>>() {})
                 .getBody();
     }
 

@@ -1,7 +1,7 @@
 package com.flybird.nestwise.clients.banks.monobank;
 
 import com.flybird.nestwise.clients.banks.monobank.dto.ClientInfoResponse;
-import com.flybird.nestwise.clients.banks.monobank.dto.ExchangeRateResponse;
+import com.flybird.nestwise.clients.banks.monobank.dto.MonobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionResponse;
 import com.flybird.nestwise.config.settings.MonobankSettings;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class MonobankClientImpl implements MonobankClient {
     }
 
     @Override
-    public List<ExchangeRateResponse> getExchangeRates() {
+    public List<MonobankExchangeRateResponse> getExchangeRates() {
         var url = UriComponentsBuilder.fromUriString(monobankSettings.getUrl())
                 .path(MONOBANK_CURRENCY_PATH)
                 .build()
@@ -61,7 +61,7 @@ public class MonobankClientImpl implements MonobankClient {
         return restClient.get()
                 .uri(url)
                 .retrieve()
-                .toEntity(new ParameterizedTypeReference<List<ExchangeRateResponse>>() {})
+                .toEntity(new ParameterizedTypeReference<List<MonobankExchangeRateResponse>>() {})
                 .getBody();
     }
 }
