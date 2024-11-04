@@ -27,7 +27,7 @@ public interface GoalController {
     })
     ResponseEntity<GoalResponseDto> createGoal(
             @Parameter(hidden = true) User user,
-            @Valid @RequestBody GoalRequestDto requestDto
+            @Valid GoalRequestDto requestDto
     );
 
     @Operation(summary = "Get all user goals", tags = "Goal", description = "Retrieve a list of all goals for user")
