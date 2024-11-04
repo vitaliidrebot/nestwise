@@ -1,7 +1,7 @@
 package com.flybird.nestwise.clients.banks.kredobank;
 
 import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
-import com.flybird.nestwise.clients.banks.kredobank.dto.ExchangeRateResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.InitiateOtpChallengeResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface KredobankClient {
-    List<ExchangeRateResponse> getExchangeRates(Set<String> currencies);
+    List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies);
 
     LoginResponseWithToken loginWithCredentials();
 

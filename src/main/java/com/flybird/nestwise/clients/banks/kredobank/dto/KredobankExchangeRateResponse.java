@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class ExchangeRateResponse {
+public class KredobankExchangeRateResponse {
     private String currency;
     private BigDecimal buyRate;
     private BigDecimal sellRate;
