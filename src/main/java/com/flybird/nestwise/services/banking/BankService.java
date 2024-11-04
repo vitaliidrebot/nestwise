@@ -6,6 +6,7 @@ import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 public interface BankService {
     LoginStatusResponseDto bankLogin(String bankId, AuthType type, LoginRequestDto requestDto);
 
-    Map<Integer, ExchangeRateDto> getExchangeRates();
+    Map<Pair<Integer, Integer>, ExchangeRateDto> getExchangeRates();
 
     Map<String, List<BankTransactionDto>> getTransactions(long from, long to);
 

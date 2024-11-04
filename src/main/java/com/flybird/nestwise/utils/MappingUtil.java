@@ -8,9 +8,9 @@ import com.flybird.nestwise.clients.banks.monobank.dto.MonobankExchangeRateRespo
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionResponse;
 import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.domain.User;
-import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.GoalRequestDto;
 import com.flybird.nestwise.dto.GoalResponseDto;
+import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -33,8 +33,6 @@ import static java.util.Objects.nonNull;
 public class MappingUtil {
     public static final Map<String, Integer> CURRENCY_MAPPING = Map.of(
             "UAH", 980,
-            "EUR", 978,
-            "PLN", 985,
             "USD", 840
     );
 
@@ -93,7 +91,8 @@ public class MappingUtil {
 
     public ExchangeRateDto toDto(MonobankExchangeRateResponse rate) {
         return ExchangeRateDto.builder()
-                .currencyCode(rate.getCurrencyCodeA())
+                .currencyCodeFrom(rate.getCurrencyCodeA())
+                .currencyCodeTo(rate.getCurrencyCodeB())
                 .buyRate(rate.getRateBuy())
                 .sellRate(rate.getRateSell())
                 .date(Instant.ofEpochSecond(rate.getDate())
@@ -104,10 +103,21 @@ public class MappingUtil {
 
     public ExchangeRateDto toDto(KredobankExchangeRateResponse rate) {
         return ExchangeRateDto.builder()
-                .currencyCode(toCurrencyCode(rate.getCurrency()))
+                .currencyCodeFrom(toCurrencyCode(rate.getCurrency()))
+                .currencyCodeTo(toCurrencyCode("UAH"))
                 .buyRate(rate.getBuyRate())
                 .sellRate(rate.getSellRate())
                 .date(LocalDate.parse(rate.getEndDate()))
+                .build();
+    }
+
+    public ExchangeRateDto toInvertedExchangeRateDto(ExchangeRateDto rate) {
+        return ExchangeRateDto.builder()
+                .currencyCodeFrom(rate.getCurrencyCodeTo())
+                .currencyCodeTo(rate.getCurrencyCodeFrom())
+                .buyRate(BigDecimal.ONE.divide(rate.getSellRate(), 6, RoundingMode.HALF_UP))
+                .sellRate(BigDecimal.ONE.divide(rate.getBuyRate(), 6, RoundingMode.HALF_UP))
+                .date(rate.getDate())
                 .build();
     }
 }

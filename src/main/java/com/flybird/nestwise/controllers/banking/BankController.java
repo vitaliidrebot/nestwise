@@ -1,7 +1,7 @@
 package com.flybird.nestwise.controllers.banking;
 
-import com.flybird.nestwise.dto.banking.BankBalanceResponseDto;
 import com.flybird.nestwise.dto.banking.AuthType;
+import com.flybird.nestwise.dto.banking.BankBalanceResponseDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
 import io.swagger.v3.oas.annotations.Operation;

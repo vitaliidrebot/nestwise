@@ -11,8 +11,10 @@ import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
 import com.flybird.nestwise.services.AuthSession;
 import com.flybird.nestwise.services.SessionService;
+import com.flybird.nestwise.utils.CurrencyConversionUtil;
 import com.flybird.nestwise.utils.MappingUtil;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,6 +36,7 @@ import static com.flybird.nestwise.dto.banking.AuthType.CREDENTIALS;
 import static com.flybird.nestwise.dto.banking.AuthType.OTP;
 import static com.flybird.nestwise.utils.MappingUtil.CURRENCY_MAPPING;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 
 @Service("kredobank")
@@ -59,12 +63,16 @@ public class KredobankServiceImpl implements BankService {
     }
 
     @Override
-    public Map<Integer, ExchangeRateDto> getExchangeRates() {
+    public Map<Pair<Integer, Integer>, ExchangeRateDto> getExchangeRates() {
         var exchangeRates = kredobankClient.getExchangeRates(CURRENCY_MAPPING.keySet());
 
         return exchangeRates.stream()
                 .map(mappingUtil::toDto)
-                .collect(toMap(ExchangeRateDto::getCurrencyCode, Function.identity()));
+                .filter(rate -> !Objects.equals(rate.getCurrencyCodeFrom(), rate.getCurrencyCodeTo()))
+                .filter(rate -> nonNull(rate.getBuyRate()) && nonNull(rate.getSellRate()))
+                .map(rate -> List.of(rate, mappingUtil.toInvertedExchangeRateDto(rate)))
+                .flatMap(Collection::stream)
+                .collect(toMap(rate -> Pair.of(rate.getCurrencyCodeFrom(), rate.getCurrencyCodeTo()), Function.identity()));
     }
 
     @Override
@@ -88,6 +96,7 @@ public class KredobankServiceImpl implements BankService {
         var exchangeRates = getExchangeRates();
 
         return kredobankClient.getCards(authToken).getContracts().stream()
+                .filter(f -> CURRENCY_MAPPING.containsKey(f.getMainAccountCurrency()))
                 .map(account -> AccountBalance.builder()
                         .accountId(account.getId())
                         .balance(toCurrency(currency, account, exchangeRates))
@@ -96,14 +105,11 @@ public class KredobankServiceImpl implements BankService {
                 .collect(Collectors.toList());
     }
 
-    private static BigDecimal toCurrency(String currency, CardInfoResponse.Contract account, Map<Integer, ExchangeRateDto> exchangeRates) {
-        var currencyCode = CURRENCY_MAPPING.get(currency);
-        var balance = BigDecimal.valueOf(account.getBalance() - account.getCreditLimit()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        if (!Objects.equals(currency, account.getMainAccountCurrency())) {
-            return balance.divide(exchangeRates.get(currencyCode).getSellRate(), 2, RoundingMode.HALF_UP);
-        }
+    private static BigDecimal toCurrency(String currency, CardInfoResponse.Contract account, Map<Pair<Integer, Integer>, ExchangeRateDto> exchangeRates) {
+        Function<CardInfoResponse.Contract, BigDecimal> balanceFunc = (account1) -> BigDecimal.valueOf(account1.getBalance() - account1.getCreditLimit()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        Function<CardInfoResponse.Contract, Integer> currencyCodeFunc = (account1) -> CURRENCY_MAPPING.get(account1.getMainAccountCurrency());
 
-        return balance;
+        return CurrencyConversionUtil.toCurrency(currency, account, balanceFunc, currencyCodeFunc, exchangeRates);
     }
 
     private LoginStatusResponseDto loginWithCredentials(String bankId) {

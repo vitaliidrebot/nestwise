@@ -13,7 +13,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeRateDto {
-    private Integer currencyCode;
+    private Integer currencyCodeFrom;
+    private Integer currencyCodeTo;
     private BigDecimal buyRate;
     private BigDecimal sellRate;
     private LocalDate date;

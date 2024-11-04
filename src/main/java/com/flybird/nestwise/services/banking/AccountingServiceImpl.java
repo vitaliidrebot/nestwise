@@ -1,22 +1,23 @@
 package com.flybird.nestwise.services.banking;
 
 import com.flybird.nestwise.dto.banking.AccountBalance;
-import com.flybird.nestwise.dto.banking.BankBalanceResponseDto;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankBalance;
+import com.flybird.nestwise.dto.banking.BankBalanceResponseDto;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
+import com.flybird.nestwise.utils.CurrencyConversionUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.flybird.nestwise.utils.MappingUtil.CURRENCY_MAPPING;
 
@@ -78,13 +79,11 @@ public class AccountingServiceImpl implements AccountingService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static BigDecimal toCurrency(String currency, BankTransactionDto transaction, Map<Integer, ExchangeRateDto> exchangeRates) {
-        Integer currencyCode = CURRENCY_MAPPING.get(currency);
-        if (!Objects.equals(currencyCode, transaction.getCurrencyCode())) {
-            return transaction.getAmount().divide(exchangeRates.get(currencyCode).getSellRate(), 2, RoundingMode.HALF_UP);
-        }
+    private static BigDecimal toCurrency(String currency, BankTransactionDto transaction, Map<Pair<Integer, Integer>, ExchangeRateDto> exchangeRates) {
+        Function<BankTransactionDto, BigDecimal> balanceFunc = BankTransactionDto::getAmount;
+        Function<BankTransactionDto, Integer> currencyCodeFunc = BankTransactionDto::getCurrencyCode;
 
-        return transaction.getAmount();
+        return CurrencyConversionUtil.toCurrency(currency, transaction, balanceFunc, currencyCodeFunc, exchangeRates);
     }
 
     @Override

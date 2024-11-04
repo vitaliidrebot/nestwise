@@ -20,6 +20,9 @@ spring:
   sql:
     init:
       platform: postgres
+  jackson:
+    generator:
+      WRITE_BIGDECIMAL_AS_PLAIN: true
   security:
     user:
       name: vitalii

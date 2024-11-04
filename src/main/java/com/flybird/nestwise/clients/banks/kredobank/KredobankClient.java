@@ -1,8 +1,8 @@
 package com.flybird.nestwise.clients.banks.kredobank;
 
 import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
-import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.InitiateOtpChallengeResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
 
