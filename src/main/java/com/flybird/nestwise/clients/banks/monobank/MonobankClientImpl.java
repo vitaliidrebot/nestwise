@@ -12,7 +12,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
-import static com.flybird.nestwise.utils.AppConstants.*;
+import static com.flybird.nestwise.utils.AppConstants.MONOBANK_ACCOUNT_STATEMENT_PATH;
+import static com.flybird.nestwise.utils.AppConstants.MONOBANK_CLIENT_INFO_PATH;
+import static com.flybird.nestwise.utils.AppConstants.MONOBANK_CURRENCY_PATH;
 
 @Component
 @RequiredArgsConstructor

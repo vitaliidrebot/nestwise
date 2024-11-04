@@ -1,6 +1,13 @@
 package com.flybird.nestwise.clients.banks.kredobank;
 
-import com.flybird.nestwise.clients.banks.kredobank.dto.*;
+import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.CompleteOtpChallengeRequest;
+import com.flybird.nestwise.clients.banks.kredobank.dto.ExchangeRateResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.InitiateOtpChallengeResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.LoginRequest;
+import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponse;
+import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
 import com.flybird.nestwise.config.settings.KredobankSettings;
 import com.flybird.nestwise.utils.MappingUtil;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +23,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.flybird.nestwise.utils.AppConstants.*;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_ACCOUNT_HISTORY_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_ACCOUNT_INFO_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_AUTH_COMPLETE_OTP_CHALLENGE_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_AUTH_CREDENTIALS_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_AUTH_INITIATE_OTP_CHALLENGE_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_AUTH_SESSION_PATH;
+import static com.flybird.nestwise.utils.AppConstants.KREDOBANK_CURRENCY_PATH;
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
