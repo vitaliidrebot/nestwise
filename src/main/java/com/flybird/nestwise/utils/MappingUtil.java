@@ -31,6 +31,8 @@ import java.time.ZoneId;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.flybird.nestwise.utils.StringUtil.maskCreditCard;
+import static com.flybird.nestwise.utils.StringUtil.maskIBAN;
 import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
@@ -133,7 +135,7 @@ public class MappingUtil {
                 .currencyCode(apiAccount.getCurrencyCode())
                 .balance(apiAccount.getBalance())
                 .creditLimit(apiAccount.getCreditLimit())
-                .iban(apiAccount.getIban())
+                .iban(maskIBAN(apiAccount.getIban()))
                 .isActive(true)
                 .user(userExtractor.apply(userId))
                 .bank(bankExtractor.apply(bankId))
@@ -143,7 +145,7 @@ public class MappingUtil {
                 .map(cardNumber -> Card.builder()
                         .title(apiAccount.getType())
                         .description(null)
-                        .cardNumber(cardNumber)
+                        .cardNumber(maskCreditCard(cardNumber))
                         .build()
                 )
                 .toList();
@@ -160,7 +162,7 @@ public class MappingUtil {
                 .currencyCode(CURRENCY_MAPPING.get(apiAccount.getMainAccountCurrency()))
                 .balance(apiAccount.getBalance())
                 .creditLimit(apiAccount.getCreditLimit())
-                .iban(apiAccount.getIban())
+                .iban(maskIBAN(apiAccount.getIban()))
                 .isActive(true)
                 .user(userExtractor.apply(userId))
                 .bank(bankExtractor.apply(bankId))
@@ -174,7 +176,7 @@ public class MappingUtil {
                     return Card.builder()
                             .title(productTitle)
                             .description(description)
-                            .cardNumber(card.getCardNumberMask())
+                            .cardNumber(maskCreditCard(card.getCardNumberMask()))
                             .build();
                 })
                 .toList();

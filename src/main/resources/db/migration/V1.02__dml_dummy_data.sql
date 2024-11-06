@@ -12,10 +12,10 @@ INSERT INTO accounts (bank_account_id, title, description, currency_code, balanc
     ('ssgfg_sgghdswr', 'Savings Account', 'High-interest savings account', 980, 5000000, 0, 'UA81*********************1234',  '2023-10-01 12:00:00', TRUE, 2, 2);
 
 INSERT INTO cards (title, description, card_number, account_id) VALUES
-    ('Visa Gold', 'Gold credit card with high limit', '4111111111111111', 1),
-    ('MasterCard Platinum', 'Platinum credit card with rewards', '5500000000000004', 1),
-    ('Visa Classic', 'Classic debit card', '4111111111111112', 2),
-    ('MasterCard Standard', 'Standard debit card', '5500000000000005', 2);
+    ('Visa Gold', 'Gold credit card with high limit', '************1111', 1),
+    ('MasterCard Platinum', 'Platinum credit card with rewards', '************0004', 1),
+    ('Visa Classic', 'Classic debit card', '************1112', 2),
+    ('MasterCard Standard', 'Standard debit card', '************0005', 2);
 
 INSERT INTO transaction_category_type (name) VALUES
     ('income'),

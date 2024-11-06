@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.flybird.nestwise.utils.MappingUtil.CURRENCY_MAPPING;
+import static com.flybird.nestwise.utils.StringUtil.maskIBAN;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +54,7 @@ public class AccountingServiceImpl implements AccountingService {
                 .map(bankService -> {
                     List<AccountBalance> accountBalances = bankService.getValue().getTransactions(from, to).entrySet().stream()
                             .map(entry -> AccountBalance.builder()
-                                    .iban(entry.getKey())
+                                    .iban(maskIBAN(entry.getKey()))
                                     .balance(calculateBalance(entry.getValue(), bankService.getKey(), currency))
                                     .build()
                             )
@@ -128,7 +129,7 @@ public class AccountingServiceImpl implements AccountingService {
 
         var cardBalances = accounts.stream()
                 .map(account -> AccountBalance.builder()
-                        .iban(account.getIban())
+                        .iban(maskIBAN(account.getIban()))
                         .balance(toCurrency(currency, account, exchangeRates))
                         .build())
                 .collect(Collectors.toList());
