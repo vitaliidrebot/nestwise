@@ -1,6 +1,6 @@
 package com.flybird.nestwise.services.banking;
 
-import com.flybird.nestwise.dto.banking.AccountBalance;
+import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
@@ -18,5 +18,5 @@ public interface BankService {
 
     Map<String, List<BankTransactionDto>> getTransactions(long from, long to);
 
-    List<AccountBalance> getAccounts(String currency);
+    List<Account> getAccounts(Long userId);
 }

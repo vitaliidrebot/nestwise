@@ -32,7 +32,7 @@ public class GoalServiceImpl implements GoalService {
     public List<GoalResponseDto> getUserGoals(String username) {
         var user = userRepository.findByUsername(username)
                 .orElseThrow(RuntimeException::new);
-        var goals = goalRepository.findByCreatedBy(user.getId());
+        var goals = goalRepository.findByUserId(user.getId());
 
         return goals.stream().map(mappingUtil::toDto).toList();
     }
@@ -43,7 +43,7 @@ public class GoalServiceImpl implements GoalService {
                 .orElseThrow(RuntimeException::new);
         var goal = goalRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
-        if (!goal.getCreatedBy().equals(user.getId())) {
+        if (!goal.getUserId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         var goalToUpdate = mappingUtil.toDomain(requestDto, user.getId(),
@@ -61,7 +61,7 @@ public class GoalServiceImpl implements GoalService {
                 .orElseThrow(RuntimeException::new);
         var goal = goalRepository.findById(id)
                 .orElseThrow(RuntimeException::new);
-        if (!goal.getCreatedBy().equals(user.getId())) {
+        if (!goal.getUserId().equals(user.getId())) {
             throw new RuntimeException("Unauthorized");
         }
         goalRepository.delete(goal);

@@ -12,6 +12,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountBalance {
-    private String accountId;
+    private String iban;
     private BigDecimal balance;
 }
