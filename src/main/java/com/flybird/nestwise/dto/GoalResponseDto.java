@@ -38,7 +38,7 @@ public class GoalResponseDto {
     private Instant createdAt;
 
     @Schema(description = "Identifier of the user who created the goal", example = "1")
-    private Long createdBy;
+    private Long userId;
 
     @Schema(description = "List of child goals")
     private List<GoalResponseDto> children;
