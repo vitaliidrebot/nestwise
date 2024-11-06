@@ -42,6 +42,16 @@ public interface BankController {
             @Parameter(description = "Comma-separated list of bank IDs", example = "UAH") Set<String> bankIds
     );
 
+    @Operation(summary = "Sync bank accounts", tags = "Bank", description = "Sync account statements with bank")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated account statements"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to access the resource"),
+    })
+    ResponseEntity<Void> syncAccounts(
+            @Parameter(description = "Comma-separated list of bank IDs", example = "UAH") Set<String> bankIds
+    );
+
     @Operation(summary = "Get current balance", tags = "Bank", description = "Get the current balance of the bank accounts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved current balance"),

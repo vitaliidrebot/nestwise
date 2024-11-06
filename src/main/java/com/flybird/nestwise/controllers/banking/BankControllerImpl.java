@@ -48,6 +48,15 @@ public class BankControllerImpl implements BankController {
 
     @Override
     @Authenticated
+    @PostMapping("/sync")
+    public ResponseEntity<Void> syncAccounts(@RequestParam(required = false) Set<String> bankIds) {
+        accountingService.syncAccounts(isNull(bankIds) ? emptySet() : bankIds);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @Authenticated
     @GetMapping("/balance")
     public ResponseEntity<BankBalanceResponseDto> getCurrentBalance(@RequestParam(required = false, defaultValue = "UAH") String currency,
                                                                     @RequestParam(required = false) Set<String> bankIds) {
