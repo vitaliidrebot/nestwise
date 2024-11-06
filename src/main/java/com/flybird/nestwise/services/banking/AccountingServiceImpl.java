@@ -1,11 +1,11 @@
 package com.flybird.nestwise.services.banking;
 
 import com.flybird.nestwise.domain.Account;
+import com.flybird.nestwise.dto.banking.AccountBalance;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankBalance;
 import com.flybird.nestwise.dto.banking.BankBalanceResponseDto;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
-import com.flybird.nestwise.dto.banking.AccountBalance;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
@@ -109,7 +109,6 @@ public class AccountingServiceImpl implements AccountingService {
 
         var banks = bankServices.entrySet().stream()
                 .filter(b -> bankIds.isEmpty() || bankIds.contains(b.getKey()))
-                .peek(this::updateBankAccounts)
                 .map(bankService -> toBankBalance(currency, bankService, accountMap.getOrDefault(bankService.getKey(), List.of())))
                 .toList();
 
@@ -150,6 +149,13 @@ public class AccountingServiceImpl implements AccountingService {
         Function<Account, Integer> currencyCodeFunc = Account::getCurrencyCode;
 
         return CurrencyConversionUtil.toCurrency(currency, account, balanceFunc, currencyCodeFunc, exchangeRates);
+    }
+
+    @Override
+    public void syncAccounts(Set<String> bankIds) {
+        bankServices.entrySet().stream()
+                .filter(b -> bankIds.isEmpty() || bankIds.contains(b.getKey()))
+                .forEach(this::updateBankAccounts);
     }
 
     private List<Account> updateBankAccounts(Map.Entry<String, BankService> bankService) {

@@ -13,4 +13,6 @@ public interface AccountingService {
     BankBalanceResponseDto calculateBalanceChange(long from, long to, String currency, Set<String> bankIds);
 
     BankBalanceResponseDto calculateCurrentBalance(String currency, Set<String> bankIds);
+
+    void syncAccounts(Set<String> bankIds);
 }
