@@ -7,22 +7,35 @@ CREATE TABLE users (
 
 CREATE TABLE banks (
    id SERIAL PRIMARY KEY,
+   code VARCHAR(20) NOT NULL,
    name VARCHAR(100) NOT NULL,
-   description TEXT,
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   description TEXT
 );
 
 CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    bank_account_id VARCHAR(50) NOT NULL,
+    title VARCHAR(100) NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    budget FLOAT NOT NULL DEFAULT 0,
+    currency_code INTEGER NOT NULL,
+    balance BIGINT NOT NULL,
+    credit_limit BIGINT,
+    iban VARCHAR(34) NOT NULL,
+    last_transaction_date TIMESTAMP,
+    is_active BOOLEAN NOT NULL,
     user_id INTEGER,
     bank_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (bank_id) REFERENCES banks (id),
-    CONSTRAINT check_negative_value CHECK (budget >= 0)
+    FOREIGN KEY (bank_id) REFERENCES banks (id)
+);
+
+CREATE TABLE cards (
+   id SERIAL PRIMARY KEY,
+   title VARCHAR(100) NOT NULL,
+   description TEXT,
+   card_number VARCHAR(16) NOT NULL,
+   account_id INTEGER,
+   FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 
 CREATE TABLE transaction_category_type (
@@ -51,7 +64,7 @@ CREATE TABLE transactions (
     FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 
-CREATE TABLE goal(
+CREATE TABLE goals(
     id SERIAL PRIMARY KEY,
     parent_id INTEGER,
     name VARCHAR(255) NOT NULL,
@@ -61,36 +74,36 @@ CREATE TABLE goal(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by INTEGER NOT NULL,
     FOREIGN KEY (created_by) REFERENCES users (id),
-    FOREIGN KEY (parent_id) REFERENCES goal (id)
+    FOREIGN KEY (parent_id) REFERENCES goals (id)
 );
 
-CREATE TABLE goal_item (
+CREATE TABLE goal_items (
     id SERIAL PRIMARY KEY,
     goal_id INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (goal_id) REFERENCES goal (id)
+    FOREIGN KEY (goal_id) REFERENCES goals (id)
 );
 
-CREATE TABLE item_provider (
+CREATE TABLE item_providers (
    id SERIAL PRIMARY KEY,
    name VARCHAR(255) NOT NULL,
    contact_info TEXT,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE goal_item_variation (
+CREATE TABLE goal_item_variations (
     id SERIAL PRIMARY KEY,
     goal_item_id INTEGER NOT NULL,
     item_provider_id INTEGER NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (goal_item_id) REFERENCES goal_item (id),
-    FOREIGN KEY (item_provider_id) REFERENCES item_provider (id)
+    FOREIGN KEY (goal_item_id) REFERENCES goal_items (id),
+    FOREIGN KEY (item_provider_id) REFERENCES item_providers (id)
 );
 
-CREATE TABLE task (
+CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -100,7 +113,7 @@ CREATE TABLE task (
     status VARCHAR(50) NOT NULL,
     created_date TIMESTAMP NOT NULL,
     created_by VARCHAR(255) NOT NULL,
-    FOREIGN KEY (goal_item_id) REFERENCES goal_item (id)
+    FOREIGN KEY (goal_item_id) REFERENCES goal_items (id)
 );
 
 CREATE TABLE currency (

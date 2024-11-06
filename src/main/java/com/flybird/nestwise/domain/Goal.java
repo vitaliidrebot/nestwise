@@ -11,21 +11,25 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
+@Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "goal")
+@Table(name = "goals")
 public class Goal {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "goal_seq")
-    @SequenceGenerator(name = "goal_seq", sequenceName = "goal_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "goals_id_gen")
+    @SequenceGenerator(name = "goals_id_gen", sequenceName = "goals_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -54,8 +58,8 @@ public class Goal {
     @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "created_by", updatable = false, insertable = false)
-    private Long createdBy;
+    @Column(name = "user_id", updatable = false, insertable = false)
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false)

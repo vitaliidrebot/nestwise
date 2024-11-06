@@ -3,22 +3,23 @@ package com.flybird.nestwise.services.banking;
 import com.flybird.nestwise.clients.banks.kredobank.KredobankClient;
 import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
-import com.flybird.nestwise.dto.banking.AccountBalance;
+import com.flybird.nestwise.domain.Account;
+import com.flybird.nestwise.domain.Bank;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
+import com.flybird.nestwise.repositories.BankRepository;
+import com.flybird.nestwise.repositories.UserRepository;
 import com.flybird.nestwise.services.AuthSession;
 import com.flybird.nestwise.services.SessionService;
-import com.flybird.nestwise.utils.CurrencyConversionUtil;
 import com.flybird.nestwise.utils.MappingUtil;
-import lombok.AllArgsConstructor;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -30,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.flybird.nestwise.dto.banking.AuthType.CREDENTIALS;
 import static com.flybird.nestwise.dto.banking.AuthType.OTP;
@@ -40,14 +40,23 @@ import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 
 @Service("kredobank")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class KredobankServiceImpl implements BankService {
     private static final List<AuthType> BANK_LOGIN_TYPES = List.of(CREDENTIALS, OTP);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy").withZone(ZoneId.systemDefault());
 
     private final SessionService sessionService;
     private final KredobankClient kredobankClient;
+    private final UserRepository userRepository;
+    private final BankRepository bankRepository;
     private final MappingUtil mappingUtil;
+
+    private Bank bank;
+
+    @PostConstruct
+    private void init() {
+        bank = bankRepository.findByCode("kredobank").orElseThrow(RuntimeException::new);
+    }
 
     @Override
     public LoginStatusResponseDto bankLogin(String bankId, AuthType type, LoginRequestDto requestDto) {
@@ -91,25 +100,15 @@ public class KredobankServiceImpl implements BankService {
     }
 
     @Override
-    public List<AccountBalance> getAccounts(String currency) {
+    public List<Account> getAccounts(Long userId) {
         var authToken = sessionService.getAuthToken("kredobank");
-        var exchangeRates = getExchangeRates();
 
         return kredobankClient.getCards(authToken).getContracts().stream()
                 .filter(f -> CURRENCY_MAPPING.containsKey(f.getMainAccountCurrency()))
-                .map(account -> AccountBalance.builder()
-                        .accountId(account.getId())
-                        .balance(toCurrency(currency, account, exchangeRates))
-                        .build()
-                )
-                .collect(Collectors.toList());
-    }
-
-    private static BigDecimal toCurrency(String currency, CardInfoResponse.Contract account, Map<Pair<Integer, Integer>, ExchangeRateDto> exchangeRates) {
-        Function<CardInfoResponse.Contract, BigDecimal> balanceFunc = (account1) -> BigDecimal.valueOf(account1.getBalance() - account1.getCreditLimit()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        Function<CardInfoResponse.Contract, Integer> currencyCodeFunc = (account1) -> CURRENCY_MAPPING.get(account1.getMainAccountCurrency());
-
-        return CurrencyConversionUtil.toCurrency(currency, account, balanceFunc, currencyCodeFunc, exchangeRates);
+                .map(account -> mappingUtil.toDomain(account,
+                        bank.getId(), bankRepository::getReferenceById,
+                        userId, userRepository::getReferenceById))
+                .toList();
     }
 
     private LoginStatusResponseDto loginWithCredentials(String bankId) {

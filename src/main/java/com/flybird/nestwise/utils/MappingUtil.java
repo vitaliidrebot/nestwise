@@ -1,11 +1,16 @@
 package com.flybird.nestwise.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponse;
+import com.flybird.nestwise.clients.banks.monobank.dto.ClientInfoResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionResponse;
+import com.flybird.nestwise.domain.Account;
+import com.flybird.nestwise.domain.Bank;
+import com.flybird.nestwise.domain.Card;
 import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.domain.User;
 import com.flybird.nestwise.dto.GoalRequestDto;
@@ -50,7 +55,7 @@ public class MappingUtil {
         if (nonNull(parentId)) {
             domain.setParent(goalExtractor.apply(parentId));
         }
-        domain.setCreatedBy(userId);
+        domain.setUserId(userId);
         domain.setUser(userExtractor.apply(userId));
         domain.setCreatedAt(Instant.now());
 
@@ -119,5 +124,71 @@ public class MappingUtil {
                 .sellRate(BigDecimal.ONE.divide(rate.getBuyRate(), 6, RoundingMode.HALF_UP))
                 .date(rate.getDate())
                 .build();
+    }
+
+    public Account toDomain(ClientInfoResponse.Account apiAccount, Long bankId, Function<Long, Bank> bankExtractor, Long userId, Function<Long, User> userExtractor) {
+        var account = Account.builder()
+                .bankAccountId(apiAccount.getId())
+                .title(apiAccount.getType())
+                .currencyCode(apiAccount.getCurrencyCode())
+                .balance(apiAccount.getBalance())
+                .creditLimit(apiAccount.getCreditLimit())
+                .iban(apiAccount.getIban())
+                .isActive(true)
+                .user(userExtractor.apply(userId))
+                .bank(bankExtractor.apply(bankId))
+                .build();
+
+        var cards = apiAccount.getMaskedPan().stream()
+                .map(cardNumber -> Card.builder()
+                        .title(apiAccount.getType())
+                        .description(null)
+                        .cardNumber(cardNumber)
+                        .build()
+                )
+                .toList();
+
+        account.addCards(cards);
+
+        return account;
+    }
+
+    public Account toDomain(CardInfoResponse.Contract apiAccount, Long bankId, Function<Long, Bank> bankExtractor, Long userId, Function<Long, User> userExtractor) {
+        var account = Account.builder()
+                .bankAccountId(apiAccount.getId())
+                .title(apiAccount.getProductTitle())
+                .currencyCode(CURRENCY_MAPPING.get(apiAccount.getMainAccountCurrency()))
+                .balance(apiAccount.getBalance())
+                .creditLimit(apiAccount.getCreditLimit())
+                .iban(apiAccount.getIban())
+                .isActive(true)
+                .user(userExtractor.apply(userId))
+                .bank(bankExtractor.apply(bankId))
+                .build();
+
+        var cards = apiAccount.getCardsList().stream()
+                .map(card -> {
+                    var productTitle = getCardAttribute(card, "productTitle");
+                    var description = getCardAttribute(card, "card_contract_desc");
+
+                    return Card.builder()
+                            .title(productTitle)
+                            .description(description)
+                            .cardNumber(card.getCardNumberMask())
+                            .build();
+                })
+                .toList();
+
+        account.addCards(cards);
+
+        return account;
+    }
+
+    private static String getCardAttribute(CardInfoResponse.Contract.Card card, String attributeName) {
+        return card.getAttributes().stream()
+                .filter(f -> f.getKey().equals(attributeName))
+                .findFirst()
+                .map(CardInfoResponse.Contract.Card.Attribute::getValue)
+                .orElse(null);
     }
 }
