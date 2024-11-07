@@ -10,8 +10,11 @@ import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
 import com.flybird.nestwise.repositories.AccountRepository;
+import com.flybird.nestwise.repositories.BankRepository;
+import com.flybird.nestwise.repositories.ExchangeRateRepository;
 import com.flybird.nestwise.repositories.UserRepository;
 import com.flybird.nestwise.utils.CurrencyConversionUtil;
+import com.flybird.nestwise.utils.MappingUtil;
 import com.flybird.nestwise.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +41,9 @@ public class AccountingServiceImpl implements AccountingService {
     private final Map<String, BankService> bankServices;
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final BankRepository bankRepository;
+    private final ExchangeRateRepository exchangeRateRepository;
+    private final MappingUtil mappingUtil;
 
     @Override
     public LoginStatusResponseDto bankLogin(String bankId, AuthType authType, LoginRequestDto requestDto) {
@@ -84,7 +91,7 @@ public class AccountingServiceImpl implements AccountingService {
     }
 
     private BigDecimal calculateBalance(List<BankTransactionDto> transactions, String bankId, String currency) {
-        var exchangeRates = bankServices.get(bankId).getExchangeRates();
+        var exchangeRates = bankServices.get(bankId).getCurrentExchangeRates();
 
         return transactions.stream()
                 .map(transaction -> toCurrency(currency, transaction, exchangeRates))
@@ -125,7 +132,7 @@ public class AccountingServiceImpl implements AccountingService {
     }
 
     private BankBalance toBankBalance(String currency, Map.Entry<String, BankService> bankService, List<Account> accounts) {
-        var exchangeRates = bankService.getValue().getExchangeRates();
+        var exchangeRates = bankService.getValue().getCurrentExchangeRates();
 
         var cardBalances = accounts.stream()
                 .map(account -> AccountBalance.builder()
@@ -157,6 +164,17 @@ public class AccountingServiceImpl implements AccountingService {
         bankServices.entrySet().stream()
                 .filter(b -> bankIds.isEmpty() || bankIds.contains(b.getKey()))
                 .forEach(this::updateBankAccounts);
+    }
+
+    @Override
+    public List<ExchangeRateDto> getExchangeRatesHistory(String bankId, String currency, LocalDate from, LocalDate to) {
+        var bank = bankRepository.findByCode(bankId).orElseThrow(RuntimeException::new);
+        var currencyCodeFrom = mappingUtil.toCurrencyCode("UAH");
+        var currencyCodeTo = mappingUtil.toCurrencyCode(currency);
+
+        return exchangeRateRepository.getExchangeRates(bank.getId(), currencyCodeFrom, currencyCodeTo, from, to).stream()
+                .map(mappingUtil::toDto)
+                .toList();
     }
 
     private List<Account> updateBankAccounts(Map.Entry<String, BankService> bankService) {

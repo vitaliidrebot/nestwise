@@ -72,7 +72,7 @@ public class KredobankServiceImpl implements BankService {
     }
 
     @Override
-    public Map<Pair<Integer, Integer>, ExchangeRateDto> getExchangeRates() {
+    public Map<Pair<Integer, Integer>, ExchangeRateDto> getCurrentExchangeRates() {
         var exchangeRates = kredobankClient.getExchangeRates(CURRENCY_MAPPING.keySet());
 
         return exchangeRates.stream()
