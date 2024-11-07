@@ -116,27 +116,27 @@ CREATE TABLE tasks (
     FOREIGN KEY (goal_item_id) REFERENCES goal_items (id)
 );
 
-CREATE TABLE currency (
+CREATE TABLE currencies (
     code INTEGER PRIMARY KEY,
-    name VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
     currency_code CHAR(3)
 );
 
-CREATE TABLE country (
+CREATE TABLE countries (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     currency_code INTEGER,
-    FOREIGN KEY (currency_code) REFERENCES currency (code)
+    FOREIGN KEY (currency_code) REFERENCES currencies (code)
 );
 
-CREATE TABLE exchange_rate (
+CREATE TABLE exchange_rates (
     id SERIAL PRIMARY KEY,
-    currency_code_a INT NOT NULL,
-    currency_code_b INT NOT NULL,
-    date TIMESTAMP NOT NULL,
+    bank_id INT NOT NULL,
+    currency_code_from INT NOT NULL,
+    currency_code_to INT NOT NULL,
+    date DATE NOT NULL,
     rate_buy DECIMAL(10, 4),
     rate_sell DECIMAL(10, 4),
-    rateCross DECIMAL(10, 4),
-    FOREIGN KEY (currency_code_a) REFERENCES currency (code),
-    FOREIGN KEY (currency_code_b) REFERENCES currency (code)
+    FOREIGN KEY (currency_code_from) REFERENCES currencies (code),
+    FOREIGN KEY (currency_code_to) REFERENCES currencies (code)
 );
