@@ -15,6 +15,7 @@ services:
 
   nestwise:
     build:
+      context: ./nestwise-api
       dockerfile: docker/Dockerfile
     container_name: nestwise_app
     environment:
