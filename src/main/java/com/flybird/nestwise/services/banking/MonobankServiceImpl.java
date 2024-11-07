@@ -59,7 +59,7 @@ public class MonobankServiceImpl implements BankService {
     }
 
     @Override
-    public Map<Pair<Integer, Integer>, ExchangeRateDto> getExchangeRates() {
+    public Map<Pair<Integer, Integer>, ExchangeRateDto> getCurrentExchangeRates() {
         var exchangeRates = monobankClient.getExchangeRates();
         var uahCode = CURRENCY_MAPPING.get("UAH");
 

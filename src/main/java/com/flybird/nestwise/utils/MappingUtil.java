@@ -11,6 +11,7 @@ import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionRespon
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
 import com.flybird.nestwise.domain.Card;
+import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.domain.User;
 import com.flybird.nestwise.dto.GoalRequestDto;
@@ -192,5 +193,9 @@ public class MappingUtil {
                 .findFirst()
                 .map(CardInfoResponse.Contract.Card.Attribute::getValue)
                 .orElse(null);
+    }
+
+    public ExchangeRateDto toDto(ExchangeRate exchangeRate) {
+        return modelMapper.map(exchangeRate, ExchangeRateDto.class);
     }
 }

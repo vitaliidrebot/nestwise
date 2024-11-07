@@ -14,7 +14,7 @@ import java.util.Map;
 public interface BankService {
     LoginStatusResponseDto bankLogin(String bankId, AuthType type, LoginRequestDto requestDto);
 
-    Map<Pair<Integer, Integer>, ExchangeRateDto> getExchangeRates();
+    Map<Pair<Integer, Integer>, ExchangeRateDto> getCurrentExchangeRates();
 
     Map<String, List<BankTransactionDto>> getTransactions(long from, long to);
 
