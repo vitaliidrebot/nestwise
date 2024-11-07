@@ -31,5 +31,17 @@ services:
     ports:
       - "8080:8080"
 
+  nestwise-ui:
+    build:
+      context: ./nestwise-ui
+      dockerfile: docker/Dockerfile
+    container_name: nestwise_ui
+    environment:
+      REACT_APP_API_URL: http://nestwise_app:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - nestwise
+
 volumes:
   postgres_data:
