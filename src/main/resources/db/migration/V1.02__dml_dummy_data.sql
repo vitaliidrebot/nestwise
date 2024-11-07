@@ -5,7 +5,8 @@ INSERT INTO users (username, email) VALUES
 
 INSERT INTO banks (name, code, description) VALUES
     ('Kredobank', 'kredobank', 'АТ "Кредобанк"'),
-    ('Monobank', 'monobank', 'АТ "Універсал Банк"');
+    ('Monobank', 'monobank', 'АТ "Універсал Банк"'),
+    ('Privatbank', 'privatbank', 'АТ КБ "Приватбанк"');
 
 INSERT INTO accounts (bank_account_id, title, description, currency_code, balance, credit_limit, iban, last_transaction_date, is_active, user_id, bank_id) VALUES
     ('154565654', 'Primary Checking Account', 'Main checking account for daily transactions', 980, 1000000, 500000, 'UA81*********************4321', '2023-10-01 12:00:00', TRUE, 1, 1),
