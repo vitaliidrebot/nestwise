@@ -17,6 +17,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,10 +46,10 @@ public class KredobankClientImpl implements KredobankClient {
     private final MappingUtil mappingUtil;
 
     @Override
-    public List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies) {
+    public List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies, LocalDate date) {
         var url = UriComponentsBuilder.fromUriString(kredobankSettings.getUrl())
                 .path(KREDOBANK_CURRENCY_PATH)
-                .queryParam("date", DATE_FORMATTER.format(Instant.now()))
+                .queryParam("date", DATE_FORMATTER.format(date))
                 .queryParam("currency", String.join(",", currencies))
                 .build()
                 .toUri();

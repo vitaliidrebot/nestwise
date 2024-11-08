@@ -209,8 +209,19 @@ public class MappingUtil {
                 .currencyFrom(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getBaseCurrency())))
                 .currencyTo(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getCurrency())))
                 .date(date)
-                .buyRate(BigDecimal.valueOf(exchangeRate.getPurchaseRate()))
-                .sellRate(BigDecimal.valueOf(exchangeRate.getSaleRate()))
+                .buyRate(exchangeRate.getPurchaseRate())
+                .sellRate(exchangeRate.getSaleRate())
+                .build();
+    }
+
+    public ExchangeRate toDomain(KredobankExchangeRateResponse exchangeRate, Long bankId, Function<Long, Bank> bankExtractor, Function<Integer, Currency> currencyExtractor, LocalDate date) {
+        return ExchangeRate.builder()
+                .bank(bankExtractor.apply(bankId))
+                .currencyFrom(currencyExtractor.apply(CURRENCY_MAPPING.get("UAH")))
+                .currencyTo(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getCurrency())))
+                .date(date)
+                .buyRate(exchangeRate.getBuyRate())
+                .sellRate(exchangeRate.getSellRate())
                 .build();
     }
 }

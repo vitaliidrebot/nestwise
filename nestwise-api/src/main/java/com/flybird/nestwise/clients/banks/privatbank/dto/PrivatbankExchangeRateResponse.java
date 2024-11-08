@@ -2,6 +2,7 @@ package com.flybird.nestwise.clients.banks.privatbank.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -16,9 +17,9 @@ public class PrivatbankExchangeRateResponse {
     public static class ExchangeRate {
         private String baseCurrency;
         private String currency;
-        private Double saleRateNB;
-        private Double purchaseRateNB;
-        private Double saleRate;
-        private Double purchaseRate;
+        private BigDecimal saleRateNB;
+        private BigDecimal purchaseRateNB;
+        private BigDecimal saleRate;
+        private BigDecimal purchaseRate;
     }
 }

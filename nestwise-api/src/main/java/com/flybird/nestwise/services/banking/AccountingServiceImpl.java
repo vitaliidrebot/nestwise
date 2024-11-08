@@ -1,7 +1,6 @@
 package com.flybird.nestwise.services.banking;
 
 import com.flybird.nestwise.domain.Account;
-import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.dto.banking.AccountBalance;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankBalance;
@@ -181,13 +180,13 @@ public class AccountingServiceImpl implements AccountingService {
                 .toList();
 
         var lastStoredDate = exchangeRateDtos.getLast().getDate();
-        LocalDate today = LocalDate.now();
+        var today = LocalDate.now();
 
         if (!to.isBefore(today) && lastStoredDate.isBefore(today)) {
             CompletableFuture.runAsync(() -> {
-                LocalDate currentDate = lastStoredDate.plusDays(1);
+                var currentDate = lastStoredDate.plusDays(1);
                 while (!currentDate.isAfter(today)) {
-                    List<ExchangeRate> exchangeRates = bankServices.get(bankId).getHistoricalExchangeRates(currentDate);
+                    var exchangeRates = bankServices.get(bankId).getHistoricalExchangeRates(currentDate);
                     exchangeRateRepository.saveAll(exchangeRates);
                     currentDate = currentDate.plusDays(1);
                 }

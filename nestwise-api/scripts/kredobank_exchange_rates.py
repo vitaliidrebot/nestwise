@@ -1,8 +1,8 @@
 # Extracts exchange rates history for the Kredobank API and transforms it into SQL insert statement.
 # Created with AI support.
 
-import requests
 import datetime
+import requests
 
 # Define the start date and end date
 start_date = datetime.date(2022, 1, 1)
