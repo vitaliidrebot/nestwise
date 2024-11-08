@@ -5,7 +5,7 @@ import requests
 import datetime
 
 # Define the start date and end date
-start_date = datetime.date(2024, 11, 1)
+start_date = datetime.date(2022, 1, 1)
 end_date = datetime.date.today()
 
 # Define the API URL
@@ -17,7 +17,7 @@ currency_code_from = 980  # UAH
 bank_id = 3  # Privatbank
 
 # Open the file to write the SQL insert statements
-with open("exchange_rates.sql", "w") as file:
+with open("privatbank_exchange_rates.sql", "w") as file:
     file.write("INSERT INTO exchange_rates (bank_id, currency_code_from, currency_code_to, date, rate_buy, rate_sell) VALUES\n")
 
     # Iterate over each day from start_date to end_date
