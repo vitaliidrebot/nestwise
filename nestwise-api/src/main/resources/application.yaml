@@ -37,3 +37,5 @@ nestwise:
       username: ${KREDOBANK_USERNAME}
       password: ${KREDOBANK_PASSWORD}
       token: ${KREDOBANK_API_TOKEN}
+    privatbank:
+      url: https://api.privatbank.ua/p24api

@@ -19,4 +19,5 @@ public class AppConstants {
     public static final String KREDOBANK_ACCOUNT_HISTORY_PATH = "/v1/individual/light/contract/card/{accountId}/history/all/between";
     public static final String KREDOBANK_CURRENCY_PATH = "/v1/individual/light/currencies/bank";
 
+    public static final String PRIVATBANK_EXCHANGE_RATES_PATH = "/exchange_rates";
 }
