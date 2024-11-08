@@ -5,12 +5,14 @@ import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
+import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
 import com.flybird.nestwise.dto.banking.LoginRequestDto;
 import com.flybird.nestwise.dto.banking.LoginStatusResponseDto;
 import com.flybird.nestwise.repositories.BankRepository;
+import com.flybird.nestwise.repositories.CurrencyRepository;
 import com.flybird.nestwise.repositories.UserRepository;
 import com.flybird.nestwise.services.AuthSession;
 import com.flybird.nestwise.services.SessionService;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.flybird.nestwise.dto.banking.AuthType.CREDENTIALS;
 import static com.flybird.nestwise.dto.banking.AuthType.OTP;
@@ -49,6 +52,7 @@ public class KredobankServiceImpl implements BankService {
     private final KredobankClient kredobankClient;
     private final UserRepository userRepository;
     private final BankRepository bankRepository;
+    private final CurrencyRepository currencyRepository;
     private final MappingUtil mappingUtil;
 
     private Bank bank;
@@ -73,7 +77,7 @@ public class KredobankServiceImpl implements BankService {
 
     @Override
     public Map<Pair<Integer, Integer>, ExchangeRateDto> getCurrentExchangeRates() {
-        var exchangeRates = kredobankClient.getExchangeRates(CURRENCY_MAPPING.keySet());
+        var exchangeRates = kredobankClient.getExchangeRates(CURRENCY_MAPPING.keySet(), LocalDate.now());
 
         return exchangeRates.stream()
                 .map(mappingUtil::toDto)
@@ -82,6 +86,16 @@ public class KredobankServiceImpl implements BankService {
                 .map(rate -> List.of(rate, mappingUtil.toInvertedExchangeRateDto(rate)))
                 .flatMap(Collection::stream)
                 .collect(toMap(rate -> Pair.of(rate.getCurrencyCodeFrom(), rate.getCurrencyCodeTo()), Function.identity()));
+    }
+
+    @Override
+    public List<ExchangeRate> getHistoricalExchangeRates(LocalDate date) {
+        var currencies = CURRENCY_MAPPING.keySet().stream().filter(cur -> !cur.equals("UAH")).collect(Collectors.toSet());
+
+        return kredobankClient.getExchangeRates(currencies, date).stream()
+                .map(exchangeRate -> mappingUtil.toDomain(exchangeRate, bank.getId(), bankRepository::getReferenceById,
+                        currencyRepository::getReferenceById, date))
+                .toList();
     }
 
     @Override
@@ -96,7 +110,7 @@ public class KredobankServiceImpl implements BankService {
                         .toInstant(ZoneOffset.UTC)
                         .isAfter(Instant.ofEpochSecond(from))
                 )
-                .collect(toMap(CardInfoResponse.Contract::getId, account -> getAccountTransactions(account.getId(), from, to, authToken)));
+                .collect(toMap(CardInfoResponse.Contract::getIban, account -> getAccountTransactions(account.getId(), from, to, authToken)));
     }
 
     @Override

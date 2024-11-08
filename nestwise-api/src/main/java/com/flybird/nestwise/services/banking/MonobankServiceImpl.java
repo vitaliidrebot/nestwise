@@ -4,6 +4,7 @@ import com.flybird.nestwise.clients.banks.monobank.MonobankClient;
 import com.flybird.nestwise.clients.banks.monobank.dto.ClientInfoResponse;
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
+import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
@@ -18,15 +19,16 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 import static com.flybird.nestwise.dto.banking.AuthType.TOKEN;
 import static com.flybird.nestwise.utils.MappingUtil.CURRENCY_MAPPING;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 
 @Service("monobank")
@@ -64,11 +66,16 @@ public class MonobankServiceImpl implements BankService {
         var uahCode = CURRENCY_MAPPING.get("UAH");
 
         return exchangeRates.stream()
-                .filter(rate -> CURRENCY_MAPPING.containsValue(rate.getCurrencyCodeA()) && rate.getCurrencyCodeB().equals(uahCode))
+                .filter(rate -> CURRENCY_MAPPING.containsValue(rate.getCurrencyCodeA()) && rate.getCurrencyCodeB().equals(uahCode) && nonNull(rate.getRateSell()))
                 .map(mappingUtil::toDto)
                 .map(rate -> List.of(rate, mappingUtil.toInvertedExchangeRateDto(rate)))
                 .flatMap(Collection::stream)
                 .collect(toMap(rate -> Pair.of(rate.getCurrencyCodeFrom(), rate.getCurrencyCodeTo()), Function.identity()));
+    }
+
+    @Override
+    public List<ExchangeRate> getHistoricalExchangeRates(LocalDate date) {
+        return List.of();
     }
 
     @Override
@@ -79,7 +86,7 @@ public class MonobankServiceImpl implements BankService {
         return clientInfo.getAccounts().stream()
                 // TODO: temporary ignore other cards to avoid rate limiting
                 .filter(account -> !account.getType().equals("madeInUkraine") && !account.getType().equals("eAid"))
-                .collect(toMap(ClientInfoResponse.Account::getId, account -> getAccountTransactions(account.getId(), from, to, authToken)));
+                .collect(toMap(ClientInfoResponse.Account::getIban, account -> getAccountTransactions(account.getId(), from, to, authToken)));
     }
 
     @Override
@@ -102,6 +109,6 @@ public class MonobankServiceImpl implements BankService {
     private LoginStatusResponseDto loginWithToken(String bankId) {
         var session = sessionService.getSession(bankId);
 
-        return new LoginStatusResponseDto(Objects.nonNull(session), TOKEN);
+        return new LoginStatusResponseDto(nonNull(session), TOKEN);
     }
 }
