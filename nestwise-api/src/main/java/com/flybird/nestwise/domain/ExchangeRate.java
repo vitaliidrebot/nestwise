@@ -31,14 +31,18 @@ public class ExchangeRate {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "bank_id", nullable = false)
+    @Column(name = "bank_id", updatable = false, insertable = false)
     private Integer bankId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "bank_id", nullable = false)
+    private Bank bank;
+
     @Column(name = "currency_code_from", updatable = false, insertable = false)
-    private Long currencyCodeFrom;
+    private Integer currencyCodeFrom;
 
     @Column(name = "currency_code_to", updatable = false, insertable = false)
-    private Long currencyCodeTo;
+    private Integer currencyCodeTo;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "currency_code_from", nullable = false)

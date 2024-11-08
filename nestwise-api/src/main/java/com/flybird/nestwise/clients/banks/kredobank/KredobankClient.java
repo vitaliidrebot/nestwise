@@ -6,12 +6,13 @@ import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankExchangeRateRes
 import com.flybird.nestwise.clients.banks.kredobank.dto.KredobankTransactionResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public interface KredobankClient {
-    List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies);
+    List<KredobankExchangeRateResponse> getExchangeRates(Set<String> currencies, LocalDate date);
 
     LoginResponseWithToken loginWithCredentials();
 
