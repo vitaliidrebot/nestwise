@@ -8,9 +8,11 @@ import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.ClientInfoResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankExchangeRateResponse;
 import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionResponse;
+import com.flybird.nestwise.clients.banks.privatbank.dto.PrivatbankExchangeRateResponse;
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
 import com.flybird.nestwise.domain.Card;
+import com.flybird.nestwise.domain.Currency;
 import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.domain.User;
@@ -41,7 +43,9 @@ import static java.util.Objects.nonNull;
 public class MappingUtil {
     public static final Map<String, Integer> CURRENCY_MAPPING = Map.of(
             "UAH", 980,
-            "USD", 840
+            "USD", 840,
+            "EUR", 978,
+            "PLN", 985
     );
 
     private final ModelMapper modelMapper;
@@ -197,5 +201,16 @@ public class MappingUtil {
 
     public ExchangeRateDto toDto(ExchangeRate exchangeRate) {
         return modelMapper.map(exchangeRate, ExchangeRateDto.class);
+    }
+
+    public ExchangeRate toDomain(PrivatbankExchangeRateResponse.ExchangeRate exchangeRate, Long bankId, Function<Long, Bank> bankExtractor, Function<Integer, Currency> currencyExtractor, LocalDate date) {
+        return ExchangeRate.builder()
+                .bank(bankExtractor.apply(bankId))
+                .currencyFrom(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getBaseCurrency())))
+                .currencyTo(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getCurrency())))
+                .date(date)
+                .buyRate(BigDecimal.valueOf(exchangeRate.getPurchaseRate()))
+                .sellRate(BigDecimal.valueOf(exchangeRate.getSaleRate()))
+                .build();
     }
 }

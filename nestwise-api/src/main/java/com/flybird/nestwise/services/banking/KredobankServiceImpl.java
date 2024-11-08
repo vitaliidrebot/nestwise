@@ -5,6 +5,7 @@ import com.flybird.nestwise.clients.banks.kredobank.dto.CardInfoResponse;
 import com.flybird.nestwise.clients.banks.kredobank.dto.LoginResponseWithToken;
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
+import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
 import com.flybird.nestwise.dto.banking.ExchangeRateDto;
@@ -85,6 +86,11 @@ public class KredobankServiceImpl implements BankService {
     }
 
     @Override
+    public List<ExchangeRate> getHistoricalExchangeRates(LocalDate date) {
+        return List.of();
+    }
+
+    @Override
     public Map<String, List<BankTransactionDto>> getTransactions(long from, long to) {
         var authToken = sessionService.getAuthToken("kredobank");
         var cardInfo = kredobankClient.getCards(authToken);
@@ -96,7 +102,7 @@ public class KredobankServiceImpl implements BankService {
                         .toInstant(ZoneOffset.UTC)
                         .isAfter(Instant.ofEpochSecond(from))
                 )
-                .collect(toMap(CardInfoResponse.Contract::getId, account -> getAccountTransactions(account.getId(), from, to, authToken)));
+                .collect(toMap(CardInfoResponse.Contract::getIban, account -> getAccountTransactions(account.getId(), from, to, authToken)));
     }
 
     @Override

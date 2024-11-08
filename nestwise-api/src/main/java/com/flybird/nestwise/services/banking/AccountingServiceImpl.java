@@ -1,6 +1,7 @@
 package com.flybird.nestwise.services.banking;
 
 import com.flybird.nestwise.domain.Account;
+import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.dto.banking.AccountBalance;
 import com.flybird.nestwise.dto.banking.AuthType;
 import com.flybird.nestwise.dto.banking.BankBalance;
@@ -18,6 +19,7 @@ import com.flybird.nestwise.utils.MappingUtil;
 import com.flybird.nestwise.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -172,9 +175,26 @@ public class AccountingServiceImpl implements AccountingService {
         var currencyCodeFrom = mappingUtil.toCurrencyCode("UAH");
         var currencyCodeTo = mappingUtil.toCurrencyCode(currency);
 
-        return exchangeRateRepository.getExchangeRates(bank.getId(), currencyCodeFrom, currencyCodeTo, from, to).stream()
+        var exchangeRateDtos = exchangeRateRepository.getExchangeRates(
+                bank.getId(), currencyCodeFrom, currencyCodeTo, from, to, Sort.by(Sort.Direction.ASC, "date")).stream()
                 .map(mappingUtil::toDto)
                 .toList();
+
+        var lastStoredDate = exchangeRateDtos.getLast().getDate();
+        LocalDate today = LocalDate.now();
+
+        if (!to.isBefore(today) && lastStoredDate.isBefore(today)) {
+            CompletableFuture.runAsync(() -> {
+                LocalDate currentDate = lastStoredDate.plusDays(1);
+                while (!currentDate.isAfter(today)) {
+                    List<ExchangeRate> exchangeRates = bankServices.get(bankId).getHistoricalExchangeRates(currentDate);
+                    exchangeRateRepository.saveAll(exchangeRates);
+                    currentDate = currentDate.plusDays(1);
+                }
+            });
+        }
+
+        return exchangeRateDtos;
     }
 
     private List<Account> updateBankAccounts(Map.Entry<String, BankService> bankService) {
