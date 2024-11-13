@@ -16,4 +16,6 @@ public interface GoalService {
     void deleteGoal(Long id);
 
     GoalResponseDto createGoalBudget(Long goalId, BudgetDto requestDto);
+
+    GoalResponseDto updateGoalBudget(Long goalId, BudgetDto requestDto);
 }
