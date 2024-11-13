@@ -37,10 +37,10 @@ INSERT INTO transactions (amount, description, action_type, category_id, account
     (-200.00, 'Grocery shopping', 'D', 2, 1),
     (500.00, 'Transfer to savings', 'T', 3, 1);
 
-INSERT INTO goals (name, parent_id, description, start_date, end_date, created_by) VALUES
-    ('Villa', null, 'Save money for Villa', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 1),
-    ('Buy a House', 1, 'Save money to buy a house', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 1),
-    ('Buy Land', 1, 'Save money to buy land', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 1),
+INSERT INTO goals (name, parent_id, description, start_date, end_date, user_id) VALUES
+    ('Villa', null, 'Save money for Villa', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 3),
+    ('Buy a House', 1, 'Save money to buy a house', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 3),
+    ('Buy Land', 1, 'Save money to buy land', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 3),
     ('Communications', 1, 'Save money to install communications', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 1),
     ('Vacation', null, 'Save for a vacation', '2023-06-01 00:00:00', '2023-12-31 23:59:59', 2);
 
@@ -73,7 +73,7 @@ INSERT INTO goal_item_variations (goal_item_id, item_provider_id, price) VALUES
     (7, 1, 950.00),
     (7, 2, 1000.00);
 
-INSERT INTO tasks (name, description, goal_item_id, due_date, priority, status, created_date, created_by) VALUES
-    ('Find Real Estate Agent', 'Find a reliable real estate agent', 1, '2023-02-01 00:00:00', 1, 'Pending', '2023-01-01 00:00:00', 'john_doe'),
-    ('Book Flights', 'Book flight tickets for vacation', 2, '2023-07-01 00:00:00', 2, 'Pending', '2023-06-01 00:00:00', 'jane_smith')
+INSERT INTO tasks (name, description, goal_item_id, due_date, priority, status, created_date, user_id) VALUES
+    ('Find Real Estate Agent', 'Find a reliable real estate agent', 1, '2023-02-01 00:00:00', 1, 'Pending', '2023-01-01 00:00:00', 1),
+    ('Book Flights', 'Book flight tickets for vacation', 2, '2023-07-01 00:00:00', 2, 'Pending', '2023-06-01 00:00:00', 1)
 

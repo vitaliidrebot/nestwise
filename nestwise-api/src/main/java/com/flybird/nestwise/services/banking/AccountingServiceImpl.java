@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,7 +103,7 @@ public class AccountingServiceImpl implements AccountingService {
 
     private static BigDecimal toCurrency(String currency, BankTransactionDto transaction, Map<Pair<Integer, Integer>, ExchangeRateDto> exchangeRates) {
         Function<BankTransactionDto, BigDecimal> balanceFunc = BankTransactionDto::getAmount;
-        Function<BankTransactionDto, Integer> currencyCodeFunc = BankTransactionDto::getCurrencyCode;
+        ToIntFunction<BankTransactionDto> currencyCodeFunc = BankTransactionDto::getCurrencyCode;
 
         return CurrencyConversionUtil.toCurrency(currency, transaction, balanceFunc, currencyCodeFunc, exchangeRates);
     }
@@ -141,7 +142,7 @@ public class AccountingServiceImpl implements AccountingService {
                         .iban(maskIBAN(account.getIban()))
                         .balance(toCurrency(currency, account, exchangeRates))
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         var totalBalance = cardBalances.stream()
                 .map(AccountBalance::getBalance)
@@ -155,8 +156,8 @@ public class AccountingServiceImpl implements AccountingService {
     }
 
     private static BigDecimal toCurrency(String currency, Account account, Map<Pair<Integer, Integer>, ExchangeRateDto> exchangeRates) {
-        Function<Account, BigDecimal> balanceFunc = (account1) -> BigDecimal.valueOf(account1.getBalance() - account1.getCreditLimit()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        Function<Account, Integer> currencyCodeFunc = Account::getCurrencyCode;
+        Function<Account, BigDecimal> balanceFunc = account1 -> BigDecimal.valueOf(account1.getBalance() - account1.getCreditLimit()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        ToIntFunction<Account> currencyCodeFunc = Account::getCurrencyCode;
 
         return CurrencyConversionUtil.toCurrency(currency, account, balanceFunc, currencyCodeFunc, exchangeRates);
     }

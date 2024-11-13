@@ -1,5 +1,6 @@
 package com.flybird.nestwise.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -33,7 +36,7 @@ public class Goal {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "created_by", updatable = false, insertable = false)
+    @Column(name = "parent_id", updatable = false, insertable = false)
     private Long parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -62,6 +65,10 @@ public class Goal {
     private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, optional = true)
+    @PrimaryKeyJoinColumn
+    private Budget budget;
 }

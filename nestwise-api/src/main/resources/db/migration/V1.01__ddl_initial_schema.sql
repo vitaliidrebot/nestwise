@@ -23,8 +23,8 @@ CREATE TABLE accounts (
     iban VARCHAR(34) NOT NULL,
     last_transaction_date TIMESTAMP,
     is_active BOOLEAN NOT NULL,
-    user_id INTEGER,
-    bank_id INTEGER,
+    user_id INTEGER NOT NULL,
+    bank_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (bank_id) REFERENCES banks (id)
 );
@@ -64,7 +64,33 @@ CREATE TABLE transactions (
     FOREIGN KEY (account_id) REFERENCES accounts (id)
 );
 
-CREATE TABLE goals(
+
+CREATE TABLE currencies (
+    code INTEGER PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    currency_code CHAR(3)
+);
+
+CREATE TABLE countries (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    currency_code INTEGER,
+    FOREIGN KEY (currency_code) REFERENCES currencies (code)
+);
+
+CREATE TABLE exchange_rates (
+    id SERIAL PRIMARY KEY,
+    bank_id INT NOT NULL,
+    currency_code_from INT NOT NULL,
+    currency_code_to INT NOT NULL,
+    date DATE NOT NULL,
+    rate_buy DECIMAL(10, 4),
+    rate_sell DECIMAL(10, 4),
+    FOREIGN KEY (currency_code_from) REFERENCES currencies (code),
+    FOREIGN KEY (currency_code_to) REFERENCES currencies (code)
+);
+
+CREATE TABLE goals (
     id SERIAL PRIMARY KEY,
     parent_id INTEGER,
     name VARCHAR(255) NOT NULL,
@@ -72,9 +98,19 @@ CREATE TABLE goals(
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    created_by INTEGER NOT NULL,
-    FOREIGN KEY (created_by) REFERENCES users (id),
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (parent_id) REFERENCES goals (id)
+);
+
+CREATE TABLE budgets (
+    goal_id INTEGER PRIMARY KEY,
+    min_budget INTEGER NOT NULL,
+    max_budget INTEGER NOT NULL,
+    currency_code INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (goal_id) REFERENCES goals (id),
+    FOREIGN KEY (currency_code) REFERENCES currencies (code)
 );
 
 CREATE TABLE goal_items (
@@ -112,31 +148,7 @@ CREATE TABLE tasks (
     priority INT NOT NULL,
     status VARCHAR(50) NOT NULL,
     created_date TIMESTAMP NOT NULL,
-    created_by VARCHAR(255) NOT NULL,
-    FOREIGN KEY (goal_item_id) REFERENCES goal_items (id)
-);
-
-CREATE TABLE currencies (
-    code INTEGER PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    currency_code CHAR(3)
-);
-
-CREATE TABLE countries (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    currency_code INTEGER,
-    FOREIGN KEY (currency_code) REFERENCES currencies (code)
-);
-
-CREATE TABLE exchange_rates (
-    id SERIAL PRIMARY KEY,
-    bank_id INT NOT NULL,
-    currency_code_from INT NOT NULL,
-    currency_code_to INT NOT NULL,
-    date DATE NOT NULL,
-    rate_buy DECIMAL(10, 4),
-    rate_sell DECIMAL(10, 4),
-    FOREIGN KEY (currency_code_from) REFERENCES currencies (code),
-    FOREIGN KEY (currency_code_to) REFERENCES currencies (code)
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (goal_item_id) REFERENCES goal_items (id),
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
