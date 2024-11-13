@@ -40,6 +40,9 @@ public class GoalResponseDto {
     @Schema(description = "Identifier of the user who created the goal", example = "1")
     private Long userId;
 
+    @Schema(description = "Goal estimated budget")
+    private BudgetDto budget;
+
     @Schema(description = "List of child goals")
     private List<GoalResponseDto> children;
 }

@@ -11,11 +11,13 @@ import com.flybird.nestwise.clients.banks.monobank.dto.MonobankTransactionRespon
 import com.flybird.nestwise.clients.banks.privatbank.dto.PrivatbankExchangeRateResponse;
 import com.flybird.nestwise.domain.Account;
 import com.flybird.nestwise.domain.Bank;
+import com.flybird.nestwise.domain.Budget;
 import com.flybird.nestwise.domain.Card;
 import com.flybird.nestwise.domain.Currency;
 import com.flybird.nestwise.domain.ExchangeRate;
 import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.domain.User;
+import com.flybird.nestwise.dto.BudgetDto;
 import com.flybird.nestwise.dto.GoalRequestDto;
 import com.flybird.nestwise.dto.GoalResponseDto;
 import com.flybird.nestwise.dto.banking.BankTransactionDto;
@@ -32,7 +34,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.LongFunction;
 
 import static com.flybird.nestwise.utils.StringUtil.maskCreditCard;
 import static com.flybird.nestwise.utils.StringUtil.maskIBAN;
@@ -55,7 +58,7 @@ public class MappingUtil {
         return CURRENCY_MAPPING.get(currency);
     }
 
-    public Goal toDomain(GoalRequestDto requestDto, Long userId, Function<Long, Goal> goalExtractor, Function<Long, User> userExtractor) {
+    public Goal toDomain(GoalRequestDto requestDto, Long userId, LongFunction<Goal> goalExtractor, LongFunction<User> userExtractor) {
         var domain = modelMapper.map(requestDto, Goal.class);
 
         var parentId = requestDto.getParentId();
@@ -70,7 +73,23 @@ public class MappingUtil {
     }
 
     public GoalResponseDto toDto(Goal goal) {
-        return modelMapper.map(goal, GoalResponseDto.class);
+        var goalDto = modelMapper.map(goal, GoalResponseDto.class);
+
+        setCurrencyForAllGoals(goalDto, goal);
+
+        return goalDto;
+    }
+
+    // TODO: try to avoid recursive mapping for currencyCode
+    public void setCurrencyForAllGoals(GoalResponseDto goalDto, Goal goal) {
+        if (goal.getBudget() != null && goal.getBudget().getCurrency() != null) {
+            goalDto.getBudget().setCurrency(goal.getBudget().getCurrency().getCurrencyCode());
+        }
+        if (goal.getChildren() != null) {
+            for (int i = 0; i < goal.getChildren().size(); i++) {
+                setCurrencyForAllGoals(goalDto.getChildren().get(i), goal.getChildren().get(i));
+            }
+        }
     }
 
     public LoginResponse toDto(InputStream inputStream) {
@@ -96,7 +115,7 @@ public class MappingUtil {
                 .id(transaction.getId())
                 .description(transaction.getDescription())
                 .amount(BigDecimal.valueOf(transaction.getAmountInCents()).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP))
-                .currencyCode(CURRENCY_MAPPING.get(transaction.getCurrency()))
+                .currencyCode(toCurrencyCode(transaction.getCurrency()))
                 .transactionTime(Instant.ofEpochMilli(transaction.getOperationDate()))
                 .build();
     }
@@ -133,7 +152,7 @@ public class MappingUtil {
                 .build();
     }
 
-    public Account toDomain(ClientInfoResponse.Account apiAccount, Long bankId, Function<Long, Bank> bankExtractor, Long userId, Function<Long, User> userExtractor) {
+    public Account toDomain(ClientInfoResponse.Account apiAccount, Long bankId, LongFunction<Bank> bankExtractor, Long userId, LongFunction<User> userExtractor) {
         var account = Account.builder()
                 .bankAccountId(apiAccount.getId())
                 .title(apiAccount.getType())
@@ -160,11 +179,11 @@ public class MappingUtil {
         return account;
     }
 
-    public Account toDomain(CardInfoResponse.Contract apiAccount, Long bankId, Function<Long, Bank> bankExtractor, Long userId, Function<Long, User> userExtractor) {
+    public Account toDomain(CardInfoResponse.Contract apiAccount, Long bankId, LongFunction<Bank> bankExtractor, Long userId, LongFunction<User> userExtractor) {
         var account = Account.builder()
                 .bankAccountId(apiAccount.getId())
                 .title(apiAccount.getProductTitle())
-                .currencyCode(CURRENCY_MAPPING.get(apiAccount.getMainAccountCurrency()))
+                .currencyCode(toCurrencyCode(apiAccount.getMainAccountCurrency()))
                 .balance(apiAccount.getBalance())
                 .creditLimit(apiAccount.getCreditLimit())
                 .iban(maskIBAN(apiAccount.getIban()))
@@ -203,25 +222,36 @@ public class MappingUtil {
         return modelMapper.map(exchangeRate, ExchangeRateDto.class);
     }
 
-    public ExchangeRate toDomain(PrivatbankExchangeRateResponse.ExchangeRate exchangeRate, Long bankId, Function<Long, Bank> bankExtractor, Function<Integer, Currency> currencyExtractor, LocalDate date) {
+    public ExchangeRate toDomain(PrivatbankExchangeRateResponse.ExchangeRate exchangeRate, Long bankId, LongFunction<Bank> bankExtractor, IntFunction<Currency> currencyExtractor, LocalDate date) {
         return ExchangeRate.builder()
                 .bank(bankExtractor.apply(bankId))
-                .currencyFrom(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getBaseCurrency())))
-                .currencyTo(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getCurrency())))
+                .currencyFrom(currencyExtractor.apply(toCurrencyCode(exchangeRate.getBaseCurrency())))
+                .currencyTo(currencyExtractor.apply(toCurrencyCode(exchangeRate.getCurrency())))
                 .date(date)
                 .buyRate(exchangeRate.getPurchaseRate())
                 .sellRate(exchangeRate.getSaleRate())
                 .build();
     }
 
-    public ExchangeRate toDomain(KredobankExchangeRateResponse exchangeRate, Long bankId, Function<Long, Bank> bankExtractor, Function<Integer, Currency> currencyExtractor, LocalDate date) {
+    public ExchangeRate toDomain(KredobankExchangeRateResponse exchangeRate, Long bankId, LongFunction<Bank> bankExtractor, IntFunction<Currency> currencyExtractor, LocalDate date) {
         return ExchangeRate.builder()
                 .bank(bankExtractor.apply(bankId))
-                .currencyFrom(currencyExtractor.apply(CURRENCY_MAPPING.get("UAH")))
-                .currencyTo(currencyExtractor.apply(CURRENCY_MAPPING.get(exchangeRate.getCurrency())))
+                .currencyFrom(currencyExtractor.apply(toCurrencyCode("UAH")))
+                .currencyTo(currencyExtractor.apply(toCurrencyCode(exchangeRate.getCurrency())))
                 .date(date)
                 .buyRate(exchangeRate.getBuyRate())
                 .sellRate(exchangeRate.getSellRate())
                 .build();
+    }
+
+    public Budget toDomain(BudgetDto budgetDto, Long goalId, LongFunction<Goal> goalExtractor, IntFunction<Currency> currencyExtractor) {
+        var budget = modelMapper.map(budgetDto, Budget.class);
+
+        budget.setGoal(goalExtractor.apply(goalId));
+
+        var currencyCode = toCurrencyCode(budgetDto.getCurrency());
+        budget.setCurrency(currencyExtractor.apply(currencyCode));
+
+        return budget;
     }
 }
