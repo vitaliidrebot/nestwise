@@ -45,6 +45,16 @@ public class GoalControllerImpl implements GoalController {
 
     @Override
     @Authenticated
+    @PutMapping("/{id}/budget")
+    public ResponseEntity<GoalResponseDto> updateGoalBudget(@PathVariable("id") Long goalId,
+                                                            @RequestBody BudgetDto requestDto) {
+        var responseDto = goalService.updateGoalBudget(goalId, requestDto);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @Override
+    @Authenticated
     @GetMapping
     public ResponseEntity<List<GoalResponseDto>> getUserGoals() {
         return ResponseEntity.ok(goalService.getUserGoals());

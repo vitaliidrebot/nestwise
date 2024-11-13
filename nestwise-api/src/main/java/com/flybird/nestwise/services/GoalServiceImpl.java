@@ -1,5 +1,7 @@
 package com.flybird.nestwise.services;
 
+import com.flybird.nestwise.domain.Budget;
+import com.flybird.nestwise.domain.Goal;
 import com.flybird.nestwise.dto.BudgetDto;
 import com.flybird.nestwise.dto.GoalRequestDto;
 import com.flybird.nestwise.dto.GoalResponseDto;
@@ -12,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -77,12 +81,35 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public GoalResponseDto createGoalBudget(Long goalId, BudgetDto budgetDto) {
+        Function<Goal, Budget> createBudgetFunction = goal ->
+                mappingUtil.toDomain(budgetDto, goal.getId(), goalRepository::getReferenceById, currencyRepository::getReferenceById);
+
+        return upsertGoalBudget(goalId, createBudgetFunction);
+    }
+
+    @Override
+    public GoalResponseDto updateGoalBudget(Long goalId, BudgetDto requestDto) {
+        Function<Goal, Budget> updateBudgetFunction = goal -> {
+            var budget = Optional.ofNullable(goal.getBudget())
+                    .orElseThrow(RuntimeException::new);
+
+            Optional.ofNullable(requestDto.getMinBudget()).ifPresent(budget::setMinBudget);
+            Optional.ofNullable(requestDto.getMaxBudget()).ifPresent(budget::setMaxBudget);
+            Optional.ofNullable(requestDto.getCurrency())
+                    .map(mappingUtil::toCurrencyCode)
+                    .ifPresent(code -> budget.setCurrency(currencyRepository.getReferenceById(code)));
+
+            return budget;
+        };
+
+        return upsertGoalBudget(goalId, updateBudgetFunction);
+    }
+
+    private GoalResponseDto upsertGoalBudget(Long goalId, Function<Goal, Budget> budgetFunction) {
         var goal = goalRepository.findById(goalId)
                 .orElseThrow(RuntimeException::new);
 
-        var budget = mappingUtil.toDomain(budgetDto, goalId, goalRepository::getReferenceById, currencyRepository::getReferenceById);
-
-        goal.setBudget(budget);
+        goal.setBudget(budgetFunction.apply(goal));
 
         var updatedGoal = goalRepository.save(goal);
 

@@ -35,6 +35,14 @@ public interface GoalController {
     })
     ResponseEntity<GoalResponseDto> createGoalBudget(Long goalId, @Valid BudgetDto requestDto);
 
+    @Operation(summary = "Update budget for a goal", tags = "Goal", description = "Update budget for a specific goal")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to update the resource"),
+    })
+    ResponseEntity<GoalResponseDto> updateGoalBudget(Long goalId, @Valid BudgetDto requestDto);
+
     @Operation(summary = "Get all user goals", tags = "Goal", description = "Retrieve a list of all goals for user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
