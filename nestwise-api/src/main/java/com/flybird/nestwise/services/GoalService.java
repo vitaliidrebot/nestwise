@@ -18,4 +18,6 @@ public interface GoalService {
     GoalResponseDto createGoalBudget(Long goalId, BudgetDto requestDto);
 
     GoalResponseDto updateGoalBudget(Long goalId, BudgetDto requestDto);
+
+    void deleteGoalBudget(Long id);
 }

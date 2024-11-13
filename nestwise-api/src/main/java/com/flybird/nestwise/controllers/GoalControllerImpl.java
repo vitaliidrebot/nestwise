@@ -35,26 +35,6 @@ public class GoalControllerImpl implements GoalController {
 
     @Override
     @Authenticated
-    @PostMapping("/{id}/budget")
-    public ResponseEntity<GoalResponseDto> createGoalBudget(@PathVariable("id") Long goalId,
-                                                            @RequestBody BudgetDto requestDto) {
-        var responseDto = goalService.createGoalBudget(goalId, requestDto);
-
-        return ResponseEntity.status(201).body(responseDto);
-    }
-
-    @Override
-    @Authenticated
-    @PutMapping("/{id}/budget")
-    public ResponseEntity<GoalResponseDto> updateGoalBudget(@PathVariable("id") Long goalId,
-                                                            @RequestBody BudgetDto requestDto) {
-        var responseDto = goalService.updateGoalBudget(goalId, requestDto);
-
-        return ResponseEntity.ok(responseDto);
-    }
-
-    @Override
-    @Authenticated
     @GetMapping
     public ResponseEntity<List<GoalResponseDto>> getUserGoals() {
         return ResponseEntity.ok(goalService.getUserGoals());
@@ -76,6 +56,36 @@ public class GoalControllerImpl implements GoalController {
     public ResponseEntity<Void> deleteGoal(@PathVariable("id") Long id) {
         goalService.deleteGoal(id);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Override
+    @Authenticated
+    @PostMapping("/{id}/budget")
+    public ResponseEntity<GoalResponseDto> createGoalBudget(@PathVariable("id") Long goalId,
+                                                            @RequestBody BudgetDto requestDto) {
+        var responseDto = goalService.createGoalBudget(goalId, requestDto);
+
+        return ResponseEntity.status(201).body(responseDto);
+    }
+
+    @Override
+    @Authenticated
+    @PutMapping("/{id}/budget")
+    public ResponseEntity<GoalResponseDto> updateGoalBudget(@PathVariable("id") Long goalId,
+                                                            @RequestBody BudgetDto requestDto) {
+        var responseDto = goalService.updateGoalBudget(goalId, requestDto);
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @Override
+    @Authenticated
+    @DeleteMapping("/{id}/budget")
+    public ResponseEntity<Void> deleteGoalBudget(@PathVariable("id") Long id) {
+        goalService.deleteGoalBudget(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

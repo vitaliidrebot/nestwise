@@ -49,15 +49,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public GoalResponseDto updateGoal(Long id, GoalRequestDto requestDto) {
-        var username = SecurityUtil.getUsername();
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(RuntimeException::new);
-        var goal = goalRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
-        if (!goal.getUserId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
-        }
-        var goalToUpdate = mappingUtil.toDomain(requestDto, user.getId(),
+        var goal = getGoal(id);
+        var goalToUpdate = mappingUtil.toDomain(requestDto, goal.getUserId(),
                 goalRepository::getReferenceById, userRepository::getReferenceById);
         goalToUpdate.setId(id);
 
@@ -68,14 +61,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public void deleteGoal(Long id) {
-        var username = SecurityUtil.getUsername();
-        var user = userRepository.findByUsername(username)
-                .orElseThrow(RuntimeException::new);
-        var goal = goalRepository.findById(id)
-                .orElseThrow(RuntimeException::new);
-        if (!goal.getUserId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
-        }
+        var goal = getGoal(id);
+
         goalRepository.delete(goal);
     }
 
@@ -103,6 +90,27 @@ public class GoalServiceImpl implements GoalService {
         };
 
         return upsertGoalBudget(goalId, updateBudgetFunction);
+    }
+
+    @Override
+    public void deleteGoalBudget(Long id) {
+        var goal = getGoal(id);
+        goal.setBudget(null);
+
+        goalRepository.save(goal);
+    }
+
+    private Goal getGoal(Long id) {
+        var username = SecurityUtil.getUsername();
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(RuntimeException::new);
+        var goal = goalRepository.findById(id)
+                .orElseThrow(RuntimeException::new);
+        if (!goal.getUserId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        return goal;
     }
 
     private GoalResponseDto upsertGoalBudget(Long goalId, Function<Goal, Budget> budgetFunction) {

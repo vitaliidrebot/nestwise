@@ -27,22 +27,6 @@ public interface GoalController {
             @Valid GoalRequestDto requestDto
     );
 
-    @Operation(summary = "Create a budget for a goal", tags = "Goal", description = "Create a budget for a specific goal")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully created"),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "401", description = "You are not authorized to create the resource"),
-    })
-    ResponseEntity<GoalResponseDto> createGoalBudget(Long goalId, @Valid BudgetDto requestDto);
-
-    @Operation(summary = "Update budget for a goal", tags = "Goal", description = "Update budget for a specific goal")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully updated"),
-            @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "401", description = "You are not authorized to update the resource"),
-    })
-    ResponseEntity<GoalResponseDto> updateGoalBudget(Long goalId, @Valid BudgetDto requestDto);
-
     @Operation(summary = "Get all user goals", tags = "Goal", description = "Retrieve a list of all goals for user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
@@ -70,4 +54,29 @@ public interface GoalController {
             @ApiResponse(responseCode = "404", description = "The resource you were trying to delete is not found")
     })
     ResponseEntity<Void> deleteGoal(Long id);
+
+    @Operation(summary = "Create a budget for a goal", tags = "Goal", description = "Create a budget for a specific goal")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully created"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to create the resource"),
+    })
+    ResponseEntity<GoalResponseDto> createGoalBudget(Long goalId, @Valid BudgetDto requestDto);
+
+    @Operation(summary = "Update budget for a goal", tags = "Goal", description = "Update budget for a specific goal")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to update the resource"),
+    })
+    ResponseEntity<GoalResponseDto> updateGoalBudget(Long goalId, @Valid BudgetDto requestDto);
+
+    @Operation(summary = "Delete goal budget", tags = "Goal", description = "Delete goal budget by goal ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted"),
+            @ApiResponse(responseCode = "401", description = "You are not authorized to delete the resource"),
+            @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(responseCode = "404", description = "The resource you were trying to delete is not found")
+    })
+    ResponseEntity<Void> deleteGoalBudget(Long id);
 }
