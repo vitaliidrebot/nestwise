@@ -5,6 +5,31 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE currencies (
+    code INTEGER PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    currency_code CHAR(3)
+);
+
+CREATE TABLE countries (
+   id SERIAL PRIMARY KEY,
+   name VARCHAR(255),
+   currency_code INTEGER,
+   FOREIGN KEY (currency_code) REFERENCES currencies (code)
+);
+
+CREATE TABLE exchange_rates (
+    id SERIAL PRIMARY KEY,
+    bank_id INT NOT NULL,
+    currency_code_from INT NOT NULL,
+    currency_code_to INT NOT NULL,
+    date DATE NOT NULL,
+    rate_buy DECIMAL(10, 4),
+    rate_sell DECIMAL(10, 4),
+    FOREIGN KEY (currency_code_from) REFERENCES currencies (code),
+    FOREIGN KEY (currency_code_to) REFERENCES currencies (code)
+);
+
 CREATE TABLE banks (
    id SERIAL PRIMARY KEY,
    code VARCHAR(20) NOT NULL,
@@ -26,7 +51,8 @@ CREATE TABLE accounts (
     user_id INTEGER NOT NULL,
     bank_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (bank_id) REFERENCES banks (id)
+    FOREIGN KEY (bank_id) REFERENCES banks (id),
+    FOREIGN KEY (currency_code) REFERENCES currencies (code)
 );
 
 CREATE TABLE cards (
@@ -54,40 +80,17 @@ CREATE TABLE transaction_category (
 
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
+    bank_transaction_id VARCHAR(50) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL DEFAULT 0,
     description TEXT,
     initiated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    action_type CHAR(1),
     category_id INTEGER,
     account_id INTEGER,
-    FOREIGN KEY (category_id) REFERENCES transaction_category (id),
-    FOREIGN KEY (account_id) REFERENCES accounts (id)
-);
-
-
-CREATE TABLE currencies (
-    code INTEGER PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    currency_code CHAR(3)
-);
-
-CREATE TABLE countries (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
     currency_code INTEGER,
-    FOREIGN KEY (currency_code) REFERENCES currencies (code)
-);
-
-CREATE TABLE exchange_rates (
-    id SERIAL PRIMARY KEY,
-    bank_id INT NOT NULL,
-    currency_code_from INT NOT NULL,
-    currency_code_to INT NOT NULL,
-    date DATE NOT NULL,
-    rate_buy DECIMAL(10, 4),
-    rate_sell DECIMAL(10, 4),
-    FOREIGN KEY (currency_code_from) REFERENCES currencies (code),
-    FOREIGN KEY (currency_code_to) REFERENCES currencies (code)
+    FOREIGN KEY (category_id) REFERENCES transaction_category (id),
+    FOREIGN KEY (account_id) REFERENCES accounts (id),
+    FOREIGN KEY (currency_code) REFERENCES currencies (code),
+    UNIQUE (bank_transaction_id, account_id)
 );
 
 CREATE TABLE goals (

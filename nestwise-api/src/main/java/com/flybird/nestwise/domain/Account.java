@@ -31,7 +31,7 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "accounts_id_gen")
     @SequenceGenerator(name = "accounts_id_gen", sequenceName = "accounts_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @Column(name = "bank_account_id", nullable = false)
     private String bankAccountId;
@@ -42,8 +42,12 @@ public class Account {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "currency_code", nullable = false)
+    @Column(name = "currency_code", updatable = false, insertable = false)
     private Integer currencyCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "currency_code")
+    private Currency currency;
 
     @Column(name = "balance", nullable = false)
     private Long balance;

@@ -3,14 +3,32 @@ INSERT INTO users (username, email) VALUES
     ('jane_smith', 'jane@example.com'),
     ('vitalii', 'vitalii@example.com');
 
+INSERT INTO currencies (code, name, currency_code)
+VALUES
+    (980, 'Ukrainian Hryvnia', 'UAH'),
+    (840, 'United States Dollar', 'USD'),
+    (978, 'Euro', 'EUR'),
+    (985, 'Polish Zloty', 'PLN');
+
 INSERT INTO banks (name, code, description) VALUES
     ('Kredobank', 'kredobank', 'АТ "Кредобанк"'),
     ('Monobank', 'monobank', 'АТ "Універсал Банк"'),
     ('Privatbank', 'privatbank', 'АТ КБ "Приватбанк"');
 
-INSERT INTO accounts (bank_account_id, title, description, currency_code, balance, credit_limit, iban, last_transaction_date, is_active, user_id, bank_id) VALUES
-    ('154565654', 'Primary Checking Account', 'Main checking account for daily transactions', 980, 1000000, 500000, 'UA81*********************4321', '2023-10-01 12:00:00', TRUE, 1, 1),
-    ('ssgfg_sgghdswr', 'Savings Account', 'High-interest savings account', 980, 5000000, 0, 'UA81*********************1234',  '2023-10-01 12:00:00', TRUE, 2, 2);
+INSERT INTO public.accounts (id, bank_account_id, title, description, currency_code, balance, credit_limit, iban, last_transaction_date, is_active, user_id, bank_id)
+VALUES
+    (1, '154565654', 'Primary Checking Account', 'Main checking account for daily transactions', 980, 1000000, 500000, 'UA81*********************4321', '2023-10-01 12:00:00.000000', true, 1, 1),
+    (2, 'ssgfg_sgghdswr', 'Savings Account', 'High-interest savings account', 980, 5000000, 0, 'UA81*********************1234', '2023-10-01 12:00:00.000000', true, 2, 2),
+    (3, '18429294', 'Рахунок', null, 980, 13000100, 0, 'UA10*********************7826', null, true, 3, 1),
+    (4, '18429284', 'Рахунок', null, 978, 0, 0, 'UA68*********************7826', null, true, 3, 1),
+    (5, '10744159', 'Рахунок', null, 980, 223018, 0, 'UA28*********************7826', null, true, 3, 1),
+    (6, '18429292', 'Рахунок', null, 985, 0, 0, 'UA08*********************7826', null, true, 3, 1),
+    (7, '10941228', 'Рахунок', null, 840, 100, 0, 'UA31*********************7826', null, true, 3, 1),
+    (8, '7407353', 'Рахунок', null, 840, 0, 0, 'UA07*********************7638', null, true, 3, 1),
+    (9, '7407343', 'Рахунок', null, 980, 0, 0, 'UA07*********************7638', null, true, 3, 1),
+    (10, '623zgcGlD0MGZu_t4BhznA', 'black', null, 980, 9044912, 9000000, 'UA81*********************5050', null, true, 3, 2),
+    (11, '5L6Pi1hOC0295o0gVuSa6Q', 'eAid', null, 980, 0, 0, 'UA05*********************5457', null, true, 3, 2),
+    (12, 'nFW4Bau45jZuDecYyxQvCg', 'madeInUkraine', null, 980, 2996, 0, 'UA10*********************0535', null, true, 3, 2);
 
 INSERT INTO cards (title, description, card_number, account_id) VALUES
     ('Visa Gold', 'Gold credit card with high limit', '************1111', 1),
@@ -31,11 +49,6 @@ INSERT INTO transaction_category (title, description, category_type_id) VALUES
     ('Freelance', 'Income from freelance work', 1),
     ('Groceries', 'Expenses for groceries', 2),
     ('Transfer', 'Internal transfer between accounts', 3);
-
-INSERT INTO transactions (amount, description, action_type, category_id, account_id) VALUES
-    (1500.00, 'Monthly salary', 'C', 1, 1),
-    (-200.00, 'Grocery shopping', 'D', 2, 1),
-    (500.00, 'Transfer to savings', 'T', 3, 1);
 
 INSERT INTO goals (name, parent_id, description, start_date, end_date, user_id) VALUES
     ('Villa', null, 'Save money for Villa', '2023-01-01 00:00:00', '2025-12-31 23:59:59', 3),

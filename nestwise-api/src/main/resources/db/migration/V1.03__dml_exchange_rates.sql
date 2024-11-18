@@ -1,10 +1,3 @@
-INSERT INTO currencies (code, name, currency_code)
-VALUES
-    (980, 'Ukrainian Hryvnia', 'UAH'),
-    (840, 'United States Dollar', 'USD'),
-    (978, 'Euro', 'EUR'),
-    (985, 'Polish Zloty', 'PLN');
-
 INSERT INTO exchange_rates (bank_id, currency_code_from, currency_code_to, date, rate_buy, rate_sell)
 VALUES
     (3, 980, 978, '2022-01-01', 30.4, 31.0),
